@@ -22,13 +22,18 @@ while(True):
         if not data:
             conn.close()
             print("Disconnected")
+            sendData(90,60)
             break
 
         data = data.decode("utf-8")
         datalist = data.split(",")
         x = datalist[0]
         y = datalist[1]
-        sendData = x+";"+y+"\r\n"
-        sendData = sendData.encode()
-        ser.write(sendData)
-        print("X: ",x,"Y: ",y)
+        sendData(x, y)
+
+
+def sendData(x, y):
+    send = x+";"+y+"\r\n"
+    send = sendData.encode()
+    ser.write(send)
+    print("X: ",x,"Y: ",y)
