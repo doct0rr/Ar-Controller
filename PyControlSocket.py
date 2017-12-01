@@ -16,7 +16,7 @@ def mapper(x, inMin, inMax, outMin, outMax):
 
 def dataFromSocket(inQ):
     soc = socket.socket()
-    host = "192.168.1.136"
+    host = "192.168.1.169"
     port = 1990
     soc.bind((host,port))
     soc.listen(1)
@@ -62,12 +62,18 @@ def panValues(defaultPan, x):
     left  = defaultPan - 156
     right = defaultPan + 156
     newX  = x
+    if(isinstance(x,str)):
+        return x
     if right > 313 and x < 0:
         newX = 626 + x
     finalX = mapper(newX, left, right, 0, 180)
     finalX = int(finalX)
     return finalX
-
+def tiltValues(y):
+    if isinstance(y,str):
+        return y
+    else:
+        return mapper(y,0,-250,0,85)
 
 def loop():
     while True:
@@ -83,15 +89,20 @@ def loop():
             if(not dataPoints.empty()):
                 break
             mappedX = panValues(defaultPan, x)
-            print("mappedX: ",mappedX,"X: ",x,"Y: ",y)
-            finalSend = str(mappedX) + ";" + str(y) + "\r\n"
+            mappedY = tiltValues(y)
+            print("mappedX: ",mappedX,"mapped Y:",mappedY,"X: ",x,"Y: ",y)
+            finalSend = str(mappedX) + ";" + str(mappedY) + "\r\n"
             finalSend=finalSend.encode()
             ser.write(finalSend)
+
+
 
 
 if __name__ == '__main__':
     t1 = threading.Thread(target = dataFromSocket, args = (dataPoints, ))
     t2 = threading.Thread(target = loop)
-    ser = serial.Serial('/dev/ttyUSB0',115200,timeout=5)
+    #ser = serial.Serial('/dev/ttyUSB0',115200,timeout=5)
+    ser = serial.Serial('COM3',115200,timeout=5)
+
     t2.start()
     t1.start()
